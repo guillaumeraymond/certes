@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Certes.Acme
@@ -17,12 +18,15 @@ namespace Certes.Acme
     public class AcmeHttpHandler : IAcmeHttpHandler, IDisposable
     {
         private const string MimeJson = "application/json";
+        private static Lazy<HttpClient> SharedHttp = new Lazy<HttpClient>(() => new HttpClient());
 
         private readonly HttpClient http;
         private readonly Uri serverUri;
 
-        private string nonce;
-        private AcmeDirectory directory;
+        private string nextNonce;
+        private Resource.Directory directory;
+
+        private readonly bool shouldDisposeHander;
 
         private readonly JsonSerializerSettings jsonSettings = JsonUtil.CreateSettings();
 
@@ -44,10 +48,39 @@ namespace Certes.Acme
         /// Initializes a new instance of the <see cref="AcmeHttpHandler"/> class.
         /// </summary>
         /// <param name="serverUri">The server URI.</param>
+        public AcmeHttpHandler(Uri serverUri) : this(serverUri, SharedHttp.Value)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AcmeHttpHandler"/> class.
+        /// </summary>
+        /// <param name="serverUri">The server URI.</param>
         /// <param name="httpMessageHandler">The HTTP message handler.</param>
+        [Obsolete("Use AcmeHttpHandler(Uri, HttpClient) instead for reusing HttpClient.")]
         public AcmeHttpHandler(Uri serverUri, HttpMessageHandler httpMessageHandler = null)
         {
-            this.http = httpMessageHandler == null ? new HttpClient() : new HttpClient(httpMessageHandler);
+            if (httpMessageHandler == null)
+            {
+                this.http = SharedHttp.Value;
+            }
+            else
+            {
+                this.http = new HttpClient(httpMessageHandler);
+                this.shouldDisposeHander = true;
+            }
+            
+            this.serverUri = serverUri;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AcmeHttpHandler"/> class.
+        /// </summary>
+        /// <param name="serverUri">The server URI.</param>
+        /// <param name="http">The HTTP client.</param>
+        public AcmeHttpHandler(Uri serverUri, HttpClient http = null)
+        {
+            this.http = http ?? SharedHttp.Value;
             this.serverUri = serverUri;
         }
 
@@ -100,7 +133,7 @@ namespace Certes.Acme
         {
             await FetchDirectory(false);
 
-            var content = GenerateRequestContent(entity, keyPair);
+            var content = await GenerateRequestContent(entity, keyPair);
             var resp = await http.PostAsync(uri, content);
             var result = await ReadResponse<T>(resp, entity.Resource);
             return result;
@@ -151,17 +184,31 @@ namespace Certes.Acme
 
         private async Task FetchDirectory(bool force)
         {
-            if (this.directory == null || this.nonce == null || force)
+            if (this.directory == null || force)
             {
                 var uri = serverUri;
-                var resp = await this.Get<AcmeDirectory>(uri);
+                var resp = await this.Get<Resource.Directory>(uri);
                 this.directory = resp.Data;
             }
         }
 
-        private StringContent GenerateRequestContent(EntityBase entity, IAccountKey keyPair)
+        private async ValueTask<string> GetNonce()
         {
-            var body = Encode(entity, keyPair, this.nonce);
+            var nonce = Interlocked.Exchange(ref nextNonce, null);
+            while (nonce == null)
+            {
+                // TODO: fetch from new-nonce resource
+                await FetchDirectory(true);
+                nonce = Interlocked.Exchange(ref nextNonce, null);
+            }
+
+            return nonce;
+        }
+
+        private async ValueTask<StringContent> GenerateRequestContent(EntityBase entity, IAccountKey keyPair)
+        {
+            var nonce = await this.GetNonce();
+            var body = Encode(entity, keyPair, nonce);
             var bodyJson = JsonConvert.SerializeObject(body, Formatting.None, jsonSettings);
 
             return new StringContent(bodyJson, Encoding.ASCII, MimeJson);
@@ -194,7 +241,7 @@ namespace Certes.Acme
             }
 
             ParseHeaders(data, response);
-            this.nonce = data.ReplayNonce;
+            this.nextNonce = data.ReplayNonce;
             return data;
         }
 
@@ -265,7 +312,10 @@ namespace Certes.Acme
             {
                 if (disposing)
                 {
-                    http?.Dispose();
+                    if (this.shouldDisposeHander)
+                    {
+                        http?.Dispose();
+                    }
                 }
                 
                 disposedValue = true;

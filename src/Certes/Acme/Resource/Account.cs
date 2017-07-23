@@ -10,7 +10,6 @@ namespace Certes.Acme.Resource
     /// <remarks>
     /// As https://tools.ietf.org/html/draft-ietf-acme-acme-07#section-7.1.2
     /// </remarks>
-    /// <seealso cref="Certes.Acme.Registration" />
     public class Account
     {
         /// <summary>

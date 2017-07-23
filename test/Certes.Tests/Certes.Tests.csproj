@@ -7,6 +7,10 @@
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;0618</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Include="..\..\AssemblyInfo.Shared.cs" Link="Properties\AssemblyInfo.Shared.cs" />
   </ItemGroup>
