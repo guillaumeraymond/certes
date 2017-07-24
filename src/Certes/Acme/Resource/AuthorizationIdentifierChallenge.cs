@@ -34,7 +34,7 @@ namespace Certes.Acme.Resource
         /// The status.
         /// </value>
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public AuthorizationIdentifierChallengeStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the validation time.
@@ -43,7 +43,7 @@ namespace Certes.Acme.Resource
         /// The validation time.
         /// </value>
         [JsonProperty("validated")]
-        public DateTimeOffset Validated { get; set; }
+        public DateTimeOffset? Validated { get; set; }
 
         /// <summary>
         /// Gets or sets the errors.

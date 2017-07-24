@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents the type for <see cref="AuthorizationIdentifierChallenge"/>.
     /// </summary>
-    public static class AuthorizationIdentifierChallengeType
+    public static class AuthorizationIdentifierChallengeTypes
     {
         /// <summary>
         /// The http-01 challenge.

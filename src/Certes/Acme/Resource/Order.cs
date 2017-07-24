@@ -22,7 +22,7 @@ namespace Certes.Acme.Resource
         /// See <see cref="OrderStatus"/> for possible values.
         /// </remarks>
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public OrderStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the expires.

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Certes.Acme.Resource
+﻿namespace Certes.Acme.Resource
 {
     /// <summary>
-    /// 
+    /// Represents the ACME Certificate resource.
     /// </summary>
     public class Certificate
     {

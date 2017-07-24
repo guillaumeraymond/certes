@@ -1,23 +1,30 @@
-﻿namespace Certes.Acme.Resource
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace Certes.Acme.Resource
 {
     /// <summary>
     /// Represents the status for <see cref="AuthorizationIdentifierChallenge"/>.
     /// </summary>
-    public static class AuthorizationIdentifierChallengeStatus
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum AuthorizationIdentifierChallengeStatus
     {
         /// <summary>
         /// The pending status.
         /// </summary>
-        public const string Pending = "pending";
+        [JsonProperty("pending")]
+        Pending,
 
         /// <summary>
         /// The valid status.
         /// </summary>
-        public const string Valid = "valid";
+        [JsonProperty("valid")]
+        Valid,
 
         /// <summary>
         /// The invalid status.
         /// </summary>
-        public const string Invalid = "invalid";
+        [JsonProperty("invalid")]
+        Invalid,
     }
 }

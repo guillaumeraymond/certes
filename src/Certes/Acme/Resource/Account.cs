@@ -22,7 +22,7 @@ namespace Certes.Acme.Resource
         /// The status.
         /// </value>
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public AccountStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the contact.

@@ -5,13 +5,10 @@ using System.Runtime.Serialization;
 namespace Certes.Acme.Resource
 {
     /// <summary>
-    /// Represents the status of <see cref="Order"/>.
+    /// Represents the status of <see cref="Authorization"/>.
     /// </summary>
-    /// <remarks>
-    /// As https://tools.ietf.org/html/draft-ietf-acme-acme-07#section-7.1.3
-    /// </remarks>
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum OrderStatus
+    public enum AuthorizationStatus
     {
         /// <summary>
         /// The pending status.
@@ -36,6 +33,11 @@ namespace Certes.Acme.Resource
         /// </summary>
         [EnumMember(Value = "invalid")]
         Invalid,
-    }
 
+        /// <summary>
+        /// The revoked status.
+        /// </summary>
+        [EnumMember(Value = "revoked")]
+        Revoked,
+    }
 }
