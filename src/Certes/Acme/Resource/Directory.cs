@@ -18,13 +18,22 @@ namespace Certes.Acme.Resource
         public Uri NewNonce { get; set; }
 
         /// <summary>
-        /// Gets or sets the new certificate endpoint.
+        /// Gets or sets the new account endpoint.
         /// </summary>
         /// <value>
-        /// The new certificate endpoint.
+        /// The new account endpoint.
         /// </value>
-        [JsonProperty("new-cert")]
-        public Uri NewCert { get; set; }
+        [JsonProperty("new-account")]
+        public Uri NewAccount { get; set; }
+
+        /// <summary>
+        /// Gets or sets the new order endpoint.
+        /// </summary>
+        /// <value>
+        /// The new order endpoint.
+        /// </value>
+        [JsonProperty("new-order ")]
+        public Uri NewOrder { get; set; }
 
         /// <summary>
         /// Gets or sets the new authorization endpoint.
@@ -61,6 +70,15 @@ namespace Certes.Acme.Resource
         /// </value>
         [JsonProperty("new-reg")]
         public Uri NewReg { get; set; }
+
+        /// <summary>
+        /// Gets or sets the new certificate endpoint.
+        /// </summary>
+        /// <value>
+        /// The new certificate endpoint.
+        /// </value>
+        [JsonProperty("new-cert")]
+        public Uri NewCert { get; set; }
 
         /// <summary>
         /// Gets or sets the metadata.

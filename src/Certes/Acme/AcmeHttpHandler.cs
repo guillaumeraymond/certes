@@ -18,15 +18,14 @@ namespace Certes.Acme
     public class AcmeHttpHandler : IAcmeHttpHandler, IDisposable
     {
         private const string MimeJson = "application/json";
-        private static Lazy<HttpClient> SharedHttp = new Lazy<HttpClient>(() => new HttpClient());
 
+        private readonly static Lazy<HttpClient> SharedHttp = new Lazy<HttpClient>(() => new HttpClient());
         private readonly HttpClient http;
         private readonly Uri serverUri;
+        private readonly bool shouldDisposeHttp;
 
-        private string nextNonce;
+        private string nonce;
         private Resource.Directory directory;
-
-        private readonly bool shouldDisposeHander;
 
         private readonly JsonSerializerSettings jsonSettings = JsonUtil.CreateSettings();
 
@@ -48,7 +47,8 @@ namespace Certes.Acme
         /// Initializes a new instance of the <see cref="AcmeHttpHandler"/> class.
         /// </summary>
         /// <param name="serverUri">The server URI.</param>
-        public AcmeHttpHandler(Uri serverUri) : this(serverUri, SharedHttp.Value)
+        public AcmeHttpHandler(Uri serverUri)
+            : this(serverUri, SharedHttp.Value)
         {
         }
 
@@ -57,31 +57,23 @@ namespace Certes.Acme
         /// </summary>
         /// <param name="serverUri">The server URI.</param>
         /// <param name="httpMessageHandler">The HTTP message handler.</param>
-        [Obsolete("Use AcmeHttpHandler(Uri, HttpClient) instead for reusing HttpClient.")]
+        [Obsolete("Use AcmeHttpHandler(Uri, HttpClient) instead.")]
         public AcmeHttpHandler(Uri serverUri, HttpMessageHandler httpMessageHandler = null)
+            : this(serverUri, httpMessageHandler == null ? SharedHttp.Value : new HttpClient(httpMessageHandler))
         {
-            if (httpMessageHandler == null)
-            {
-                this.http = SharedHttp.Value;
-            }
-            else
-            {
-                this.http = new HttpClient(httpMessageHandler);
-                this.shouldDisposeHander = true;
-            }
-            
-            this.serverUri = serverUri;
+            this.shouldDisposeHttp = httpMessageHandler != null;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AcmeHttpHandler"/> class.
         /// </summary>
         /// <param name="serverUri">The server URI.</param>
-        /// <param name="http">The HTTP client.</param>
-        public AcmeHttpHandler(Uri serverUri, HttpClient http = null)
+        /// <param name="httpClient">The HTTP client.</param>
+        public AcmeHttpHandler(Uri serverUri, HttpClient httpClient)
         {
-            this.http = http ?? SharedHttp.Value;
+            this.http = httpClient ?? SharedHttp.Value;
             this.serverUri = serverUri;
+            this.shouldDisposeHttp = false;
         }
 
         /// <summary>
@@ -192,19 +184,6 @@ namespace Certes.Acme
             }
         }
 
-        private async ValueTask<string> GetNonce()
-        {
-            var nonce = Interlocked.Exchange(ref nextNonce, null);
-            while (nonce == null)
-            {
-                // TODO: fetch from new-nonce resource
-                await FetchDirectory(true);
-                nonce = Interlocked.Exchange(ref nextNonce, null);
-            }
-
-            return nonce;
-        }
-
         private async ValueTask<StringContent> GenerateRequestContent(EntityBase entity, IAccountKey keyPair)
         {
             var nonce = await this.GetNonce();
@@ -217,7 +196,7 @@ namespace Certes.Acme
         private async Task<AcmeRespone<T>> ReadResponse<T>(HttpResponseMessage response, string resourceType = null)
         {
             var data = new AcmeRespone<T>();
-            if (IsJsonMedia(response.Content.Headers.ContentType.MediaType))
+            if (IsJsonMedia(response.Content?.Headers.ContentType.MediaType))
             {
                 var json = await response.Content.ReadAsStringAsync();
                 data.Json = json;
@@ -235,13 +214,13 @@ namespace Certes.Acme
                     data.Error = JsonConvert.DeserializeObject<AcmeError>(json, jsonSettings);
                 }
             }
-            else if (response.Content.Headers.ContentLength > 0)
+            else if (response.Content?.Headers.ContentLength > 0)
             {
                 data.Raw = await response.Content.ReadAsByteArrayAsync();
             }
 
             ParseHeaders(data, response);
-            this.nextNonce = data.ReplayNonce;
+            this.nonce = data.ReplayNonce;
             return data;
         }
 
@@ -283,7 +262,7 @@ namespace Certes.Acme
                     .ToArray();
             }
 
-            data.ContentType = response.Content.Headers.ContentType.MediaType;
+            data.ContentType = response.Content?.Headers.ContentType.MediaType;
         }
 
         private static bool IsJsonMedia(string mediaType)
@@ -299,6 +278,17 @@ namespace Certes.Acme
             return false;
         }
 
+        private async ValueTask<string> GetNonce()
+        {
+            var nonce = Interlocked.Exchange(ref this.nonce, null);
+            while (nonce == null)
+            {
+                await this.FetchDirectory(true);
+            }
+
+            return nonce;
+        }
+
         #region IDisposable Support
         private bool disposedValue = false;
 
@@ -310,14 +300,11 @@ namespace Certes.Acme
         {
             if (!disposedValue)
             {
-                if (disposing)
+                if (disposing && shouldDisposeHttp)
                 {
-                    if (this.shouldDisposeHander)
-                    {
-                        http?.Dispose();
-                    }
+                    http?.Dispose();
                 }
-                
+
                 disposedValue = true;
             }
         }
