@@ -131,5 +131,13 @@ on_success:
   - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
   - git config --global user.email %github_email%
   - git config --global user.name "AppVeyor"
-  - IF "%APPVEYOR_REPO_BRANCH%" == "dev" (msbuild docfx)
-  - IF "%APPVEYOR_REPO_BRANCH%" == "dev" (git subtree push --prefix docfx/_site origin gh-pages)
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { msbuild docfx }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git checkout gh-pages }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git rm -rf . }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { gci ./* -Exclude gh-pages,.git |% { Remove-Item $_ -Recurse -Force } }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { xcopy gh-pages . /E }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { Add-Content .gitignore ".vs`ngh-pages" }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git remote set-url origin https://github.com/fszlin/certes.git }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git add -A }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git commit -a -m "doc update" }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git push }
