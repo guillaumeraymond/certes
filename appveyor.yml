@@ -131,5 +131,5 @@ on_success:
   - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
   - git config --global user.email %github_email%
   - git config --global user.name "ci"
-  - IF (%APPVEYOR_REPO_BRANCH% EQU "dev") msbuild docfx
-  - IF (%APPVEYOR_REPO_BRANCH% EQU "dev") git subtree push --prefix gh-pages origin gh-pages
+  - IF "%APPVEYOR_REPO_BRANCH%" == "dev" ( msbuild docfx )
+  - IF "%APPVEYOR_REPO_BRANCH%" == "dev" ( git subtree push --prefix gh-pages origin gh-pages )
