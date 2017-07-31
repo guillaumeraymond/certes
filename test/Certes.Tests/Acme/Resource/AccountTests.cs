@@ -1,12 +1,11 @@
-﻿using Certes.Acme.Resource;
-using Certes.Json;
+﻿using Certes.Json;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
 
-namespace Certes.Tests.Acme.Resource
+namespace Certes.Acme.Resource
 {
     public class AccountTests
     {
