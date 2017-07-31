@@ -21,7 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{E420B696
 		.travis.yml = .travis.yml
 		appveyor.yml = appveyor.yml
 		codecov.yml = codecov.yml
-		docfx.json = docfx.json
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Certes", "src\Certes\Certes.csproj", "{7AA85BF4-2A4F-42C8-A107-82B22C640C4E}"
@@ -32,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Certes.Tests", "test\Certes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Certes.Tests.Web", "test\Certes.Tests.Web\Certes.Tests.Web.csproj", "{DB1230D1-3C6C-4E86-BED0-64FCDEA91F8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "docfx", "docfx\docfx.csproj", "{1D6253A2-5340-473F-A724-9138A890D7CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "docfx", "docfx\docfx.csproj", "{1D6253A2-5340-473F-A724-9138A890D7CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
