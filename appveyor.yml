@@ -126,9 +126,11 @@ deploy:
         - master
         - dev
 
-- branches:
+-
+  branches:
     only:
       - dev
+
   on_success:
     - git config --global credential.helper store
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
