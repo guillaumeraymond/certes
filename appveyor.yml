@@ -134,7 +134,7 @@ on_success:
   - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { msbuild docfx }
   - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git remote set-url origin https://github.com/fszlin/certes.git }
   - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git fetch }
-  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git checkout gh-pages }
+  - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git checkout origin/gh-pages }
   - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { git rm -rf . }
   - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { gci ./* -Exclude gh-pages,.git |% { Remove-Item $_ -Recurse -Force } }
   - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "dev") { xcopy gh-pages . /E }
