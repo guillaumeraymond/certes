@@ -126,14 +126,13 @@ deploy:
         - master
         - dev
 
--
-  branches:
-    only:
-      - dev
-
-  on_success:
+  - provider: Local
+    before_deploy:
     - git config --global credential.helper store
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:github_access_token):x-oauth-basic@github.com`n"
     - git config --global user.email %github_email%
     - git config --global user.name "AppVeyor"
     - git subtree push --prefix docfx/_site origin gh-pages
+    on:
+      branch:
+        - dev
