@@ -69,7 +69,7 @@
     "dest": "../gh-pages",
     "globalMetadata": {
       "_appTitle": "certes",
-      "_appFooter": "@copy; 2016-2017 certes"
+      "_appFooter": "&copy; 2016-2017 certes"
     },
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
