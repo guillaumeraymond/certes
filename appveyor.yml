@@ -132,6 +132,5 @@ on_success:
   - git config --global user.email %github_email%
   - git config --global user.name "ci"
   - IF "%APPVEYOR_REPO_BRANCH%" == "dev" ( git clone https://github.com/MathewSachin/docfx-tmpl.git docfx/tmpl/mathew )
-  - IF "%APPVEYOR_REPO_BRANCH%" == "dev" ( git subtree add --prefix gh-pages https://github.com/fszlin/certes.git gh-pages --squash )
   - IF "%APPVEYOR_REPO_BRANCH%" == "dev" ( msbuild docfx )
-  - IF "%APPVEYOR_REPO_BRANCH%" == "master" ( git subtree push --prefix gh-pages origin gh-pages )
+  - IF "%APPVEYOR_REPO_BRANCH%" == "dev" ( git subtree push --prefix gh-pages origin gh-pages )
